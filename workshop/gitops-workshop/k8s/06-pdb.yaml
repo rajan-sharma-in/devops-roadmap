@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ops-demo
+  namespace: ops-demo
+  labels:
+    app: ops-demo
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ops-demo

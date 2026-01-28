@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mautic
+  labels:
+    app.kubernetes.io/name: mautic
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mautic-media-pvc
+  namespace: mautic
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mautic-logs-pvc
+  namespace: mautic
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mautic-config-pvc
+  namespace: mautic
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mautic
+  namespace: mautic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mautic
+  template:
+    metadata:
+      labels:
+        app: mautic
+    spec:
+      securityContext:
+        fsGroup: 33
+      containers:
+        - name: mautic
+          image: mautic/mautic:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: MAUTIC_DB_HOST
+              value: mautic-mariadb.mautic.svc.cluster.local
+            - name: MAUTIC_DB_PORT
+              value: "3306"
+            - name: MAUTIC_DB_USER
+              value: mautic
+            - name: MAUTIC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mautic-mariadb
+                  key: mariadb-password
+            - name: MAUTIC_DB_DATABASE
+              value: mautic
+            - name: MAUTIC_TRUSTED_PROXIES
+              value: '["0.0.0.0/0","::/0"]'
+            - name: MAUTIC_RUN_CRON_JOBS
+              value: "false"
+            - name: MAUTIC_SITE_URL
+              value: http://mautic.example.com
+          volumeMounts:
+            - name: media
+              mountPath: /var/www/html/app/media
+            - name: logs
+              mountPath: /var/www/html/var/logs
+            - name: config
+              mountPath: /var/www/html/config
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: mautic-media-pvc
+        - name: logs
+          persistentVolumeClaim:
+            claimName: mautic-logs-pvc
+        - name: config
+          persistentVolumeClaim:
+            claimName: mautic-config-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mautic
+  namespace: mautic
+spec:
+  selector:
+    app: mautic
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mautic
+  namespace: mautic
+  annotations:
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: mautic.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mautic
+                port:
+                  number: 80

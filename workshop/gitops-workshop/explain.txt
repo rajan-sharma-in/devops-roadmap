@@ -1,0 +1,19 @@
+first local cluster k8s 
+build a pipleine
+connect with git 
+run the pipleing 
+deploy applicaiton to the cluster
+verify application 
+do traffic testing with application 
+
+bonus 
+
+mautic ready to deploy resources (homework)
+
+
+Name space explain 
+
+Laptop 10 accounts on laptop 
+profile for each account 
+profile will have policy 
+
