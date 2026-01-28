@@ -1,0 +1,47 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  INTERNAL_REGISTRY: gitlab-registry.gitlab.svc:5000
+  IMAGE_PATH: "$CI_PROJECT_PATH"
+  DEST: "$INTERNAL_REGISTRY/$CI_PROJECT_PATH/ops-demo:$CI_COMMIT_SHORT_SHA"
+  DOCKER_CONFIG: /kaniko/.docker
+  K8S_NAMESPACE: ops-demo
+
+build:
+  stage: build
+  image: gcr.io/kaniko-project/executor:debug
+  script:
+    - mkdir -p /kaniko/.docker
+    - |
+      cat > /kaniko/.docker/config.json <<CONFIG
+      {"auths":{"gitlab-registry.gitlab.svc:5000":{"username":"$CI_REGISTRY_USER","password":"$CI_REGISTRY_PASSWORD"}},"insecure-registries":["gitlab-registry.gitlab.svc:5000"]}
+      CONFIG
+    - >
+      /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile "$CI_PROJECT_DIR/Dockerfile" --destination "$DEST" --destination "$INTERNAL_REGISTRY/$CI_PROJECT_PATH/ops-demo:latest"--insecure --skip-tls-verify  --insecure-registry=gitlab-registry.gitlab.svc:5000
+  only:
+    - main
+    - master
+
+deploy:
+  stage: deploy
+  image: rancher/kubectl:v1.29.5
+  dependencies: []
+  script:
+    - kubectl apply -f k8s/00-namespace.yaml
+    - kubectl apply -f k8s/01-app-config.yaml
+    - kubectl apply -f k8s/03-service.yaml
+    - kubectl apply -f k8s/04-ingress.yaml
+    - kubectl apply -f k8s/05-hpa.yaml
+    - kubectl apply -f k8s/06-pdb.yaml
+    - kubectl apply -f k8s/02-deployment.yaml
+    - kubectl apply -f k8s/07-runner-rbac.yaml
+    - kubectl -n "$K8S_NAMESPACE" set image deployment/ops-demo ops-demo="$DEST"
+    - kubectl -n "$K8S_NAMESPACE" rollout status deploy/ops-demo --timeout=120s
+  environment:
+    name: ops-demo
+    url: http://ops.host.docker.internal:8080
+  only:
+    - main
+    - master

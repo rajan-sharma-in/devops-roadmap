@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ops-demo-loadgen
+  namespace: ops-demo
+  labels:
+    app: ops-demo-loadgen
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ops-demo-loadgen
+  template:
+    metadata:
+      labels:
+        app: ops-demo-loadgen
+    spec:
+      containers:
+        - name: curl
+          image: curlimages/curl:8.5.0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "starting load against ops-demo";
+              while true; do
+                curl -s -o /dev/null -w "status:%{http_code} time:%{time_total}\n" http://ops-demo.ops-demo.svc.cluster.local/;
+                sleep 0.1;
+              done
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi

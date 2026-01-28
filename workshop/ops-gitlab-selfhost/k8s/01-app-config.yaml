@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-demo-config
+  namespace: ops-demo
+  labels:
+    app: ops-demo
+  annotations:
+    workshop.devops/message-note: "Students will edit MESSAGE to personalize responses"
+data:
+  MESSAGE: "Hello DevOps Workshop"
+  VERSION: "v1.0.0"

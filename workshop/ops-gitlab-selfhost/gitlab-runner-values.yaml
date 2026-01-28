@@ -1,0 +1,30 @@
+gitlabUrl: "http://gitlab-webservice-default.gitlab.svc:8181"
+# Set at install time: --set runnerRegistrationToken=$RUNNER_REG_TOKEN
+runnerRegistrationToken: "REPLACE_ME"
+concurrent: 2
+unregisterRunners: true
+imagePullPolicy: Always
+rbac:
+  create: true
+runners:
+  config: |
+    [[runners]]
+      name = "k8s-runner"
+      url = "http://gitlab-webservice-default.gitlab.svc:8181"
+      clone_url = "http://gitlab-webservice-default.gitlab.svc:8181"
+      token = "$CI_RUNNER_TOKEN"
+      executor = "kubernetes"
+      [runners.kubernetes]
+        namespace = "gitlab-runner"
+        image = "alpine:3.19"
+        privileged = true
+        poll_timeout = 360
+        cpu_limit = "1"
+        memory_limit = "1Gi"
+        service_cpu_limit = "500m"
+        service_memory_limit = "512Mi"
+        helper_image = "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:arm64-v18.8.0"
+        helper_cpu_limit = "500m"
+        helper_memory_limit = "512Mi"
+        pull_policy = ["always"]
+        tls_verify = false

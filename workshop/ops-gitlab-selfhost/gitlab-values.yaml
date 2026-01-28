@@ -1,0 +1,53 @@
+# Minimal GitLab in-cluster deploy (HTTP only; ingress-nginx already installed)
+global:
+  edition: ce
+  hosts:
+    domain: "host.docker.internal"
+    externalIP: "127.0.0.1"
+    gitlab:
+      name: gitlab.host.docker.internal
+      port: 8080
+  ingress:
+    configureCertmanager: false
+    tls:
+      enabled: false
+    class: "nginx"
+  shell:
+    port: 2222
+
+installCertmanager: false
+certmanager:
+  installCRDs: false
+
+nginx-ingress:
+  enabled: false
+
+gitlab-runner:
+  install: false
+
+registry:
+  enabled: true
+  ingress:
+    tls:
+      enabled: false
+  # Keep registry token auth entirely in-cluster (avoids external DNS lookups)
+  authEndpoint: "http://gitlab-webservice-default.gitlab.svc:8181"
+
+postgresql:
+  install: true
+  persistence:
+    size: 10Gi
+
+redis:
+  install: true
+  master:
+    persistence:
+      size: 5Gi
+
+minio:
+  install: true
+  persistence:
+    size: 10Gi
+
+prometheus:
+  install: false
