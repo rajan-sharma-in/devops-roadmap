@@ -2,11 +2,6 @@
 
 A hands-on plan to go from zero to productive DevOps engineer. This guide is arranged as a ladder of skills with curated resources, practice ideas, and context about when to invest in each area. Use it as a compass, not a rulebook—pick the next skill that helps you ship reliable software faster.
 
-> Want periodic breakdowns of DevOps news, labs, and interviews? [Subscribe to the newsletter](https://example.com/newsletter) so you do not miss new roadmap updates.
-
-## Support My Work
-If this project saves you time or helps with mentoring others, you can keep it going by becoming a supporter on [Patreon](https://patreon.com/your-handle) or buying me a coffee. Thank you!
-
 ## Disclaimer
 This roadmap highlights the landscape so you can make informed bets. It is not a checklist to blindly follow or a list of trendy tools. Learn the trade-offs, build intuition on why one tool fits better than another, and always evaluate the problem you are solving.
 
@@ -14,13 +9,19 @@ This roadmap highlights the landscape so you can make informed bets. It is not a
 If this roadmap is part of your learning journey, please star the repo—it helps other learners discover it.
 
 ## Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=your-handle/devops-roadmap&type=Date)](https://star-history.com/#your-handle/devops-roadmap)
 
 ---
 
 ## Table of Contents
-TODO
-as a linux admin you should know the linux well. so we will start with some basic commands 
+- Workshop
+
+## Workshop
+- Launch Kubernetes local cluster
+- Deploy Mautic
+- GitOps workshop
+- Ops workshop with GitLab self-host
+
+as a DevOps you should know the linux well. so we will start with some basic commands 
 
 ## Additional Resources
 
